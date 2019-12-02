@@ -25,6 +25,7 @@ setup(
         ]
     },
     install_requires=[
-        "tabulate",
+        "jinja2",
+        "pygments",
     ]
 )
