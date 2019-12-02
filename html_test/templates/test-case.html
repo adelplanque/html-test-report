@@ -1,0 +1,558 @@
+<!doctype html>
+<html lang="fr">
+
+  <head>
+    <meta charset="utf-8">
+    <title>Rapport de tests</title>
+    <style>{{pygments_css}}</style>
+    <style>
+     html {
+         box-sizing: border-box;
+     }
+     *, *:before, *:after {
+         box-sizing: inherit;
+     }
+     body {
+         font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+         font-size: 14px;
+         line-height: 1.4;
+         color: #333;
+         margin: 0;
+     }
+
+     #sidebar {
+         z-index: 1000;
+         position:fixed;
+         left: 0;
+         top: 0;
+         bottom: 0;
+         width: 350px;
+         height: 100%;
+         overflow-y: auto;
+         background: #000;
+         padding: 10px;
+     }
+     #main-content {
+         margin-left: 350px;
+         padding-left: 10px;
+         padding-right: 10px;
+     }
+
+     .well {
+         min-height: 20px;
+         padding: 19px;
+         margin-bottom: 15px;
+         background-color: #f5f5f5;
+         border: 1px solid #e3e3e3;
+         border-radius: 4px;
+         background-image: linear-gradient(to bottom, #e8e8e8 0,#f5f5f5 100%);
+     }
+
+     h1, h2, h3, h4, h5, h6 {
+         font-weight: 500;
+         line-height: 1.1;
+     }
+     h1, h2, h3 {
+         margin-top: 15px;
+         margin-bottom: 10px;
+     }
+     h3 {
+         font-size: 24px;
+     }
+     p {
+         margin: 0 0 10px;
+     }
+     a {
+         color: #337ab7;
+         text-decoration: none;
+     }
+     .list-group a {
+         color: #555;
+     }
+     td, th {
+         padding: 0;
+     }
+
+     .list-group {
+         padding-left: 0;
+         margin-bottom: 15px;
+     }
+     .list-group a {
+         position: relative;
+         display: block;
+         padding: 10px 15px;
+         margin-bottom: -1px;
+         background-color: #fff;
+         border: 1px solid #ddd;
+     }
+     .list-group a:first-child {
+         border-top-left-radius: 4px;
+         border-top-right-radius: 4px;
+     }
+     .list-group a:last-child {
+         border-bottom-left-radius: 4px;
+         border-bottom-right-radius: 4px;
+     }
+
+     .btn-group button {
+         width: 25%;
+         background-color: #265a88;
+         border: 1px solid blue;
+         color: white;
+         padding: 5px 10px;
+         cursor: pointer;
+         float: left;
+     }
+     .btn-group button:first-child {
+         border-top-left-radius: 4px;
+     }
+     .btn-group button:last-child {
+         border-top-right-radius: 4px;
+     }
+     .btn-group:after {
+         content: "";
+         clear: both;
+         display: table;
+     }
+     .btn-group button:not(:last-child) {
+         border-right: none;
+     }
+     .btn-group button:hover {
+         background-color: #3e8e41;
+     }
+
+     #index-tree-view {
+         overflow-y: scroll;
+         padding: 10px;
+         background-color: #fff;
+         border: 1px solid #ddd;
+         border-bottom-left-radius: 4px;
+         border-bottom-right-radius: 4px;
+     }
+     #index-tree-view ul {
+         margin: 0;
+         list-style-type: none;
+         padding-left: 0;
+     }
+     #index-tree-view ul ul {
+         margin-left: 15px;
+     }
+
+     .caret {
+         cursor: pointer;
+         user-select: none;
+         font-size: 10px;
+     }
+     .caret::before {
+         content: "\25B6";
+         color: black;
+         display: inline-block;
+         margin-right: 6px;
+     }
+     .caret-down::before {
+         transform: rotate(90deg);
+     }
+
+     .nested {
+         display: none;
+     }
+
+     .active {
+         display: block;
+     }
+
+     .cadre {
+         display: block;
+         padding: 9px;
+         margin: 0 0 10px;
+         color: #333;
+         background-color: #f5f5f5;
+         border: 1px solid #ccc;
+         border-radius: 4px;
+     }
+     pre {
+         padding: 0;
+         margin: 0;
+         border: 0;
+         background-color: transparent;
+     }
+
+     .tb-list {
+         list-style-type: none;
+         padding: 0;
+     }
+     .tb-list li {
+         margin-bottom: 4px;
+     }
+     .tb-list li:last-child {
+         margin-bottom: 0;
+     }
+
+     .scroll-box {
+         max-height: 400px;
+         overflow-x: hidden;
+         overflow-y: scroll;
+     }
+
+     .code-table {
+         width: 100%;
+         border-collapse: separate;
+         border-style: hidden;
+         border-spacing: 5px 0;
+         margin: 0 -5px;
+     }
+     .code-line-highlight {
+         background-color: #f9d4c3;
+     }
+     .code-line-no {
+         text-align: right;
+         width: 4em;
+     }
+
+     .monospace {
+         font-family: Menlo,Monaco,Consolas,"Courier New",monospace;
+         font-size: 13px;
+     }
+
+     .var-table {
+         width: 100%;
+         border-collapse: separate;
+         border-style: hidden;
+         border-spacing: 5px 0;
+         margin: 0, -5px;
+     }
+     .var-div {
+         margin-left: 20px;
+     }
+     .var-line-name {
+         vertical-align: top;
+     }
+     .var-line-value pre {
+         word-break: keep-all;
+         white-space: pre-line;
+     }
+
+     .log-table {
+         width: 100%;
+     }
+     .log-table td, .log-table th {
+         vertical-align: top;
+         padding: 0 0.5em;
+     }
+     .log-table td:first-child, .log-table th:first-child {
+         padding-left: 0;
+     }
+     .log-table td:last-child, .log-table th:last-child {
+         padding-right: 0;
+     }
+     .log-table-message {
+         word-break: break-all;
+     }
+
+     #console-content pre {
+         white-space: pre-wrap;
+         word-break: break-all;
+     }
+
+     span.status-success::before {
+         content: "\2714";
+         color: green;
+         display: inline-block;
+         margin-right: 6px;
+     }
+     span.status-fail-error::before {
+         content: "\2718";
+         color: red;
+         display: inline-block;
+         margin-right: 6px;
+     }
+     span.status-skip::before {
+         content: "\2714";
+         color: #ff9900;
+         display: inline-block;
+         margin-right: 6px;
+     }
+    </style>
+
+    <script type="text/javascript">
+     function var_toggle(link, id) {
+         var e = document.getElementById(id);
+         if (e) {
+             e.style.display = e.style.display == 'none' ? 'block' : 'none';
+         }
+         var s = link.getElementsByTagName('span')[0];
+         var uarr = String.fromCharCode(0x25b6);
+         var darr = String.fromCharCode(0x25bc);
+         s.textContent = s.textContent == uarr ? darr : uarr;
+         return false;
+     }
+
+     function context_toggle(e) {
+         var lines = e.getElementsByClassName('code-line-extended');
+         var i, line;
+         for (i = 0; i < lines.length; i++) {
+             line = lines[i];
+             line.style.display = line.style.display == 'none' ? 'table-row' : 'none';
+         }
+         var highlighted = e.getElementsByClassName('code-line-highlight');
+         if (highlighted.lenght == 0) {
+             return;
+         }
+         line = highlighted[0];
+         var yoffset = line.offsetTop + (line.clientHeight / 2) - e.clientHeight / 2;
+         e.scrollTo(0, yoffset);
+     };
+
+     function toggle_index(el) {
+         el.parentElement.querySelector(".nested").classList.toggle("active");
+         el.classList.toggle("caret-down");
+     };
+
+     function index_collapse_all() {
+         var elts = document.getElementById('index-tree-view').getElementsByClassName('caret');
+         var i;
+         for (i = 0; i < elts.length; i++) {
+             elts[i].parentElement.querySelector(".nested").classList.remove("active");
+             elts[i].classList.remove("caret-down");
+         }
+     };
+
+     function index_expend_all() {
+         var elts = document.getElementById('index-tree-view').getElementsByClassName('caret');
+         var i;
+         for (i = 0; i < elts.length; i++) {
+             elts[i].parentElement.querySelector(".nested").classList.add("active");
+             elts[i].classList.add("caret-down");
+         }
+     };
+
+     function index_hide_by_classname(name) {
+         var elts = document.getElementById('index-tree-view').getElementsByClassName(name);
+         var i, li;
+         for (i = 0; i < elts.length; i++) {
+             li = elts[i].parentElement;
+             if (li.tagName == 'LI') {
+                 li.style.display = 'none';
+             }
+         }
+     };
+
+     function index_select_error() {
+         index_hide_by_classname('status-success');
+         index_hide_by_classname('status-skip');
+     };
+
+     function index_select_all() {
+         var elts = document.getElementById('index-tree-view').getElementsByTagName('LI');
+         var i;
+         for (i = 0; i < elts.length; i++) {
+             elts[i].style.display = 'list-item';
+         }
+     };
+
+     function index_has_error() {
+         var elts = document.getElementById('index-tree-view').getElementsByClassName('status-fail-error');
+         console.log("Errors:");
+         console.log(elts);
+         return (elts.length > 0);
+     };
+
+     function setup_index(el, node) {
+         var i, ul, li, html, url;
+         if (node.title) {
+             html = '';
+             if (node.childs.length > 0) {
+                 html += '<span class="caret caret-down" onclick="toggle_index(this);"></span>';
+             }
+             if (node.status == 'success') {
+                 html += '<span class="status-success"></span>';
+             } else if (node.status == 'error' || node.status == 'fail') {
+                 html += '<span class="status-fail-error"></span>';
+             } else if (node.status == 'skip') {
+                 html += '<span class="status-skip"></span>';
+             }
+             html += '<a href="' + (node.url ? node.url : '#') + '">' + node.title + '</a>';
+             el.innerHTML += html;
+         }
+         if (node.childs.length > 0) {
+             ul = document.createElement('ul');
+             if (el.tagName == 'LI') {
+                 ul.className += "nested active";
+             }
+             el.appendChild(ul);
+         }
+         for (i = 0; i < node.childs.length; i++) {
+             li = document.createElement('li');
+             li.className += "non-error-hidden";
+             ul.appendChild(li);
+             setup_index(li, node.childs[i]);
+         }
+     };
+
+     function setup() {
+         var el = document.getElementById('index-tree-view');
+         setup_index(el, index);
+         if (index_has_error()) {
+             index_select_error();
+         }
+     };
+    </script>
+
+    <script type="text/javascript" src="index.js"></script>
+
+  </head>
+
+  <body onload="setup();">
+
+    <div id="sidebar">
+
+      <div class="well">
+        <h3>Rapport de tests</h3>
+        <p>Host: {{hostname}}</p>
+        <p>Date: {{date}}</p>
+        {% if version %}<p>Version: {{version}}</p>{% endif %}
+      </div>
+
+      {%- if links %}
+      <div class="list-group">
+        {% for link in links %}{{link}}{% endfor %}
+      </div>
+      {%- endif %}
+
+      <div class="list-group">
+        <a href="#abstract-title">Description</a>
+        {% if console %}<a href="#console-title">Console</a>{% endif %}
+        {% if logs %}<a href="#log-title">Logs</a>{% endif %}
+        {% if images %}<a href="#images-title">Images</a>{% endif %}
+        {% if files %} <a href="#files-title">Fichiers joints</a>{% endif %}
+      </div>
+
+      <div class="btn-group">
+        <button id="btn-fail" onclick="index_select_error();">Errors</button>
+        <button id="btn-all" onclick="index_select_all();">All</button>
+        <button id="btn-collapse" onclick="index_collapse_all();">Collapse</button>
+        <button id="btn-expand" onclick="index_expend_all();">Expand</button>
+      </div>
+
+      <div id="index-tree-view"></div>
+
+    </div>
+
+    <div id="main-content">
+
+      <h3 id="abstract-title">Description</h3>
+      <div id="abstract-content">
+        <p>{{test_name}}</p>
+        <p>{{doc_class}}</p>
+        <p>{{doc_test}}</p>
+        <p><b>Status: </b>{{status_title}}</p>
+        {% if status in ('error', 'fail') %}
+        <div class="cadre">
+          {% for traceback in tracebacks %}
+          {%- if loop.index0 == 0 %}
+          <p><b>Traceback</b> (most recent call last):</p>
+          {%- else %}
+          <p><b>During handling of the above exception, another exception occurred:</b></p>
+          {%- endif %}
+          <ul class="tb-list">
+            {% for item in traceback %}
+            <li>File <span class="monospace">{{item.filename}}</span>,
+              line <span class="monospace">{{item.lineno}}</span>,
+              in <span class="monospace">{{item.name}}</span>:
+              <div class="scroll-box monospace" onclick="context_toggle(this)">
+                <table class="code-table">
+                  {%- for line in item.code_fragment %}
+                  <tr class="{% if line.highlight %}code-line-highlight{% endif %}
+                             {%- if line.extended %}code-line-extended{% endif %}"
+                      {%- if line.extended %} style="display: none;"{% endif %}>
+                    <td class="code-line-no">{{line.lineno}}</td>
+                    <td><pre>{{line.code}}</pre></td>
+                  </tr>
+                  {%- endfor %}
+                </table>
+              </div>
+              <div class="var-div">
+                <a href="#" onclick="return var_toggle(this, 'v{{item.id}}')">
+                  <span>&#x25b6;</span> Local vars
+                </a>
+                <div id="v{{item.id}}" style="display: none;">
+                  <table class="var-table monospace">
+                    {%- for var in item.loc_vars %}
+                    <tr>
+                      <td class="var-line-name monospace">{{var.name}}</td>
+                      <td class="var-line-value">{{var.value}}</td>
+                    </tr>
+                    {%- endfor %}
+                  </table>
+                </div>
+              </div>
+            </li>
+            {% endfor %}
+          </ul>
+          {% endfor %}
+        </div>
+        {% endif %}
+        {% if status == 'skip' %} <p><b>Raison: </b>{{reason|e}}</p> {% endif %}
+      </div>
+
+      {%- if console %}
+      <h3 id="console-title">Console</h3>
+      <div id="console-content" class="cadre">
+        <pre>{{console|e}}</pre>
+      </div>
+      {% endif %}
+
+      {%- if logs %}
+      <h3 id="log-title">Logs</h3>
+      <div id="log-content" class="cadre">
+        <table class="log-table">
+          <thead>
+            <tr>
+              <th>Logger</th>
+              <th>Level</th>
+              <th>Message</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for logger, level, message in logs %}
+            <tr>
+              <td><samp>{{logger|e}}</samp></td>
+              <td><samp>{{level|e}}</samp></td>
+              <td class="log-table-message"><code>{{message|e}}</code></td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {%- endif %}
+
+      {%- if images %}
+      <h3 id="images-title">Images</h3>
+      <div id="images-title">
+        {%- for image in images %}
+        <div class="well">
+          <p>Résultat du test</p>
+          <img src="{{image.result}}"/>
+          {%- if image.expected %}
+          <p>Image requise</p>
+          <img src="{{image.expected}}"/>
+          {%- endif %}
+        </div>
+        {%- endfor %}
+      </div>
+      {%- endif %}
+
+      {%- if files %}
+      <h3 id="files-title">Fichiers joints</h3>
+      <div id="files-content">
+        {%- for file in files %}
+        <p><a href="{{file.filename}}">{{file.title}}</a></p>
+        {%- endfor %}
+      </div>
+      {%- endif %}
+
+    </div>
+
+  </body>
+
+</html>
