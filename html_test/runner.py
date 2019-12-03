@@ -36,6 +36,22 @@ status_dict = {
 pygments_css = formatters.HtmlFormatter().get_style_defs()
 
 
+def safe_unicode(s):
+    if not s:
+        return six.u('')
+    try:
+        if six.PY2:
+            if isinstance(s, unicode):
+                return s
+            if isinstance(s, str):
+                return unicode(s, 'utf-8', errors='replace')
+            return s
+        else:
+            return str(s)
+    except Exception as e:
+        return six.u(e)
+
+
 class Singleton(type):
 
     _instances = {}
@@ -134,29 +150,13 @@ class FileResult(object):
         content = kwargs.get('content', "")
         with open(self.filepath, 'w') as outfile:
             outfile.write(content)
-        self.title = kwargs.get('title', self.filename)
+        self.title = safe_unicode(kwargs.get('title', self.filename))
 
     def to_dict(self):
         return {
             'title': self.title,
             'filename': os.path.join('data', self.filename),
         }
-
-
-def safe_unicode(s):
-    if not s:
-        return six.u('')
-    try:
-        if six.PY2:
-            if isinstance(s, unicode):
-                return s
-            if isinstance(s, str):
-                return unicode(s, 'utf-8', errors='replace')
-            return s
-        else:
-            return str(s)
-    except Exception as e:
-        return six.u(e)
 
 
 class MethodResult(object):
