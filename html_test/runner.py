@@ -9,6 +9,7 @@ import json
 import logging
 import os
 import pkg_resources
+import re
 import six
 import socket
 import sys
@@ -219,6 +220,8 @@ class TbFrame(object):
     CodeLine = collections.namedtuple(
         'CodeLine', ('lineno', 'code', 'highlight', 'extended'))
     VarLine = collections.namedtuple('VarLine', ('name', 'value'))
+    coding_regex = re.compile(
+        six.b(r"^[ \t\f]*#.*?coding[:=][ \t]*(?P<coding>[-_.a-zA-Z0-9]+)"))
 
     def __init__(self, filename, lineno, name, vars_dict):
         self.filename = filename
@@ -227,31 +230,46 @@ class TbFrame(object):
         self.vars_dict = vars_dict
         self.id = str(uuid.uuid4())
 
+    @staticmethod
+    def get_charset(filename):
+        with open(filename, 'rb') as srcfile:
+            for i in range(2):
+                l = srcfile.readline()
+                m = TbFrame.coding_regex.match(l)
+                if m:
+                    return m.group('coding').decode('ascii')
+        if six.PY2:
+            return u'ascii'
+        else:
+            return u'utf-8'
+
     @property
     def code_fragment(self):
         fragment_length = 50
         start = max(1, self.lineno - fragment_length)
         stop = self.lineno + fragment_length
-        lineno = 1
         lexer = lexers.Python3Lexer(stripnl=False)
         formatter = formatters.HtmlFormatter(full=False, linenos=False)
 
         try:
-            with codecs.open(self.filename, 'r', encoding='utf-8') as infile:
-                for line in infile:
+            charset = self.get_charset(self.filename)
+            with codecs.open(self.filename, 'r', encoding=charset) as infile:
+                for lineno, frag in enumerate(
+                        formatter._highlight_lines(formatter._format_lines(
+                            lexer.get_tokens(infile.read()))),
+                        start=1):
                     if lineno >= start:
-                        frag = formatter._highlight_lines(formatter._format_lines(
-                            lexer.get_tokens(line)))
                         yield self.CodeLine(
-                            lineno, six.next(frag)[1].rstrip(),
+                            lineno, frag[1].rstrip(),
                             lineno == self.lineno,
                             lineno <= self.lineno - 2 or lineno >= self.lineno + 2
                         )
                     if lineno >= stop:
                         break
-                    lineno += 1
         except IOError:
             return
+        except UnicodeDecodeError as e:
+            yield self.CodeLine(None, six.u(str(e)), True, False)
 
     @property
     def loc_vars(self):
