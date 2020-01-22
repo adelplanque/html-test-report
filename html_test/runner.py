@@ -9,6 +9,7 @@ import json
 import logging
 import os
 import pkg_resources
+import pprint
 import re
 import six
 import socket
@@ -273,13 +274,13 @@ class TbFrame(object):
 
     @property
     def loc_vars(self):
-        lexer_js = lexers.JavascriptLexer()
         lexer_text = lexers.TextLexer()
+        lexer = lexers.Python3Lexer(stripnl=False)
         formatter = formatters.HtmlFormatter(full=False, linenos=False)
         for name, value in sorted(self.vars_dict.items()):
             try:
-                value = json.dumps(value, indent=4)
-                value = highlight(value, lexer_js, formatter)
+                value = pprint.pformat(value, indent=4)
+                value = highlight(value, lexer, formatter)
             except Exception:
                 try:
                     value = six.u(repr(value))
