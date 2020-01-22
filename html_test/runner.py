@@ -297,7 +297,9 @@ class Traceback(object):
     Expose one traceback to jinja2.
     """
 
-    def __init__(self, tb):
+    def __init__(self, name, msg, tb):
+        self.name = name
+        self.msg = msg
         self.tb = tb
 
     def __iter__(self):
@@ -318,13 +320,32 @@ class TracebackHandler(list):
     Expose traceback list to jinja2.
     """
 
+    @staticmethod
+    def get_msg(ev):
+        if six.PY2:
+            try:
+                return six.binary_type(ev).decode('utf-8')
+            except UnicodeDecodeError:
+                try:
+                    return six.text_type(ev)
+                except:
+                    return u"encoding error while retreiving message"
+        else:
+            try:
+                return six.text_type(ev)
+            except:
+                return u"encoding error while retreiving message"
+
     def __init__(self, exc_info):
         etype, evalue, tb = exc_info
         if six.PY2:
-            self.append(Traceback(tb))
+            self.append(Traceback(evalue.__class__.__name__,
+                                  self.get_msg(evalue), tb))
         else:
             while evalue:
-                self.append(Traceback(evalue.__traceback__))
+                self.append(evalue.__class__.__name__,
+                            self.get_msg(evalue),
+                            Traceback(evalue.__traceback__))
                 evalue = evalue.__context__
         self.reverse()
 

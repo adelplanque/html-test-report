@@ -407,7 +407,7 @@
     <div id="sidebar">
 
       <div class="well">
-        <h3>Rapport de tests</h3>
+        <h3><a href="index.html">Rapport de tests</a></h3>
         <p>Host: {{hostname}}</p>
         <p>Date: {{date}}</p>
         {% if version %}<p>Version: {{version}}</p>{% endif %}
@@ -454,6 +454,7 @@
           {%- else %}
           <p><b>During handling of the above exception, another exception occurred:</b></p>
           {%- endif %}
+          <p><b>{{traceback.name}}:</b> {{traceback.msg}}</p>
           <ul class="tb-list">
             {% for item in traceback %}
             <li>File <span class="monospace">{{item.filename}}</span>,
