@@ -41,7 +41,7 @@ class HtmlTestRunner(DiscoverRunner):
         # Maybe django >= 1.8
         @classmethod
         def add_arguments(cls, parser):
-            DiscoverRunner.add_arguments(cls, parser)
+            super(HtmlTestRunner, cls).add_arguments(parser)
             parser.add_argument(
                 '--html-test-path', default='html',
                 help="Output directory for html test report")

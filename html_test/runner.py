@@ -344,9 +344,9 @@ class TracebackHandler(list):
                                   self.get_msg(evalue), tb))
         else:
             while evalue:
-                self.append(evalue.__class__.__name__,
-                            self.get_msg(evalue),
-                            Traceback(evalue.__traceback__))
+                self.append(Traceback(evalue.__class__.__name__,
+                                      self.get_msg(evalue),
+                                      evalue.__traceback__))
                 evalue = evalue.__context__
         self.reverse()
 
