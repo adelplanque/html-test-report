@@ -18,14 +18,12 @@ setup(
     },
     package_data         = {
         'html_test': [
-            'templates/*.html',
-            'media/js/*.js',
-            'media/css/*.css',
-            'media/fonts/glyphicons-halflings-regular.*'
+            'templates/test-case.html',
         ]
     },
     install_requires=[
         "jinja2",
         "pygments",
+        "six",
     ]
 )
