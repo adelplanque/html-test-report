@@ -22,16 +22,18 @@ from pygments import highlight
 from pygments import formatters
 from pygments import lexers
 
+from .color_text import red, yellow, green
+
 
 # Default stdout
 stdout = sys.stdout
 
 
 status_dict = {
-    'success': 'Success',
-    'fail': 'Fail',
-    'error': 'Error',
-    'skip': 'Skip',
+    'success': (green, 'Success'),
+    'fail': (red, 'Fail'),
+    'error': (red, 'Error'),
+    'skip': (yellow, 'Skip'),
 }
 
 
@@ -172,7 +174,11 @@ class MethodResult(object):
             test = test.test
         self.uid = str(uuid.uuid4())
         self.status = status
-        self.status_title = status_dict.get(status) or 'Unknown'
+        try:
+            color, self.status_title = status_dict[status]
+            self.status_color = color(self.status_title, stdout)
+        except KeyError:
+            self.status_color = self.status_title = 'Unknown'
         test_class = test.__class__
         self.name = "%s.%s.%s" % (
             test_class.__module__, test_class.__name__,
@@ -423,7 +429,7 @@ class ResultMixIn(object):
         if log:
             logs['log'] = log
         result = MethodResult(status, test, logs)
-        stdout.write(result.status_title + "\n")
+        stdout.write(result.status_color + "\n")
         self._results.append(result)
 
     def startTest(self, test):
