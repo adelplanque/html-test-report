@@ -230,11 +230,11 @@ class TbFrame(object):
     coding_regex = re.compile(
         six.b(r"^[ \t\f]*#.*?coding[:=][ \t]*(?P<coding>[-_.a-zA-Z0-9]+)"))
 
-    def __init__(self, filename, lineno, name, vars_dict):
-        self.filename = filename
+    def __init__(self, frame, lineno):
+        self.frame = frame
+        self.filename = frame.f_code.co_filename
         self.lineno = lineno
-        self.name = name
-        self.vars_dict = vars_dict
+        self.name = frame.f_code.co_name
         self.id = str(uuid.uuid4())
 
     @staticmethod
@@ -258,23 +258,36 @@ class TbFrame(object):
         lexer = lexers.Python3Lexer(stripnl=False)
         formatter = formatters.HtmlFormatter(full=False, linenos=False)
 
+        loader = self.frame.f_globals.get('__loader__')
+        module_name = self.frame.f_globals.get('__name__') or ''
+        source = None
+        if loader is not None and hasattr(loader, "get_source"):
+            try:
+                source = loader.get_source(module_name)
+            except ImportError:
+                pass
+        if source is None:
+            try:
+                charset = self.get_charset(self.filename)
+                with codecs.open(self.filename, 'r', encoding=charset) as infile:
+                    source = infile.read()
+            except IOError:
+                return
+
         try:
-            charset = self.get_charset(self.filename)
-            with codecs.open(self.filename, 'r', encoding=charset) as infile:
-                for lineno, frag in enumerate(
-                        formatter._highlight_lines(formatter._format_lines(
-                            lexer.get_tokens(infile.read()))),
-                        start=1):
-                    if lineno >= start:
-                        yield self.CodeLine(
-                            lineno, frag[1].rstrip(),
-                            lineno == self.lineno,
-                            lineno <= self.lineno - 2 or lineno >= self.lineno + 2
-                        )
-                    if lineno >= stop:
-                        break
-        except IOError:
-            return
+            for lineno, frag in enumerate(
+                    formatter._highlight_lines(
+                        formatter._format_lines(
+                            lexer.get_tokens(source))),
+                    start=1):
+                if lineno >= start:
+                    yield self.CodeLine(
+                        lineno, frag[1].rstrip(),
+                        lineno == self.lineno,
+                        lineno <= self.lineno - 2 or lineno >= self.lineno + 2
+                    )
+                if lineno >= stop:
+                    break
         except UnicodeDecodeError as e:
             yield self.CodeLine(None, six.u(str(e)), True, False)
 
@@ -283,7 +296,7 @@ class TbFrame(object):
         lexer_text = lexers.TextLexer()
         lexer = lexers.Python3Lexer(stripnl=False)
         formatter = formatters.HtmlFormatter(full=False, linenos=False)
-        for name, value in sorted(self.vars_dict.items()):
+        for name, value in sorted(self.frame.f_locals.items()):
             try:
                 value = pprint.pformat(value, indent=4)
                 value = highlight(value, lexer, formatter)
@@ -312,13 +325,7 @@ class Traceback(object):
     def __iter__(self):
         tb = self.tb
         while tb:
-            frame = tb.tb_frame
-            lineno = tb.tb_lineno
-            co = frame.f_code
-            filename = co.co_filename
-            name = co.co_name
-            loc_vars = frame.f_locals
-            yield TbFrame(filename, lineno, name, loc_vars)
+            yield TbFrame(tb.tb_frame, tb.tb_lineno)
             tb = tb.tb_next
 
 
