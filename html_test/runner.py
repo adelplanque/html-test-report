@@ -13,6 +13,7 @@ import pprint
 import re
 import six
 import socket
+import subprocess
 import sys
 import unittest
 import uuid
@@ -108,6 +109,10 @@ class ImageResult(object):
     def __init__(self, result, expected=None):
         self.result = self.write_img(result)
         self.expected = self.write_img(expected)
+        if expected:
+            self.rmse = self.compare_rmse(self.result, self.expected)
+        else:
+            self.rmse = None
 
     def write_img(self, data):
         """
@@ -133,10 +138,27 @@ class ImageResult(object):
             outfile.write(data)
         return os.path.join('img', filename)
 
+    def compare_rmse(self, img1, img2):
+        """
+        Compute RMSE difference between `img1` and `img2` and return filename
+        for the diff image.
+        """
+        filename = os.path.join('img', 'img-%s.png' % str(uuid.uuid4()))
+        dest_path = Config().dest_path
+        cmd = ['compare', '-metric', 'rmse', img1, img2, filename]
+        try:
+            subprocess.call(cmd, cwd=dest_path)
+        except Exception as e:
+            stdout.write("Enable to run ImageMagic compare: %s: %s\n"
+                         % (e.__class__.__name__, e))
+        if os.path.exists(os.path.join(dest_path, filename)):
+            return filename
+
     def to_dict(self):
         return {
             'result': self.result,
             'expected': self.expected,
+            'rmse': self.rmse,
         }
 
 

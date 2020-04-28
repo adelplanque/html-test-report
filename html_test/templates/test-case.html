@@ -138,6 +138,10 @@
          margin-left: 15px;
      }
 
+     #index-tree-view .active {
+         display: block;
+     }
+
      .caret {
          cursor: pointer;
          user-select: none;
@@ -155,10 +159,6 @@
 
      .nested {
          display: none;
-     }
-
-     .active {
-         display: block;
      }
 
      .cadre {
@@ -271,6 +271,31 @@
          display: inline-block;
          margin-right: 6px;
      }
+
+     .btn-group-img {
+	 margin-bottom: 10px;
+     }
+     .btn-group-img button {
+	 background-color: #d5d7d9;
+	 border: 1px solid #2c2c37;
+	 padding: 5px 15px;
+	 cursor: pointer;
+	 border-radius: 4px;
+     }
+     .btn-group-img button.active {
+	background-color: #9a9a9b;
+     }
+     .btn-group-img button:hover {
+         background-color: #3e8e41;
+     }
+
+     .img-view {
+         display: None;
+     }
+     .img-view.active {
+         display: block;
+     }
+
     </style>
 
     <script type="text/javascript">
@@ -386,6 +411,32 @@
              ul.appendChild(li);
              setup_index(li, node.childs[i]);
          }
+     };
+
+     function img_set_active(elts, image_type) {
+         var i;
+         for (i = 0; i < elts.length; i++) {
+             elt = elts[i];
+             if (elt.dataset.imageType == image_type) {
+                 elt.classList.add('active');
+             } else {
+                 elt.classList.remove('active');
+             }
+         }
+     };
+
+     function img_select(e) {
+         var grp = e,
+             image_type = e.dataset.imageType,
+             i;
+         while (!grp.classList.contains('img-grp')) {
+             grp = grp.parentElement;
+             if (grp == null) {
+                 return;
+             }
+         }
+         img_set_active(grp.getElementsByClassName('img-btn'), image_type);
+         img_set_active(grp.getElementsByClassName('img-view'), image_type);
      };
 
      function setup() {
@@ -528,15 +579,40 @@
 
       {%- if images %}
       <h3 id="images-title">Images</h3>
-      <div id="images-title">
+      <div id="images-content">
         {%- for image in images %}
-        <div class="well">
-          <p>Résultat du test</p>
-          <img src="{{image.result}}"/>
+        <div class="well img-grp">
+
+          <div class="btn-group-img">
+            <button onclick="img_select(this);" class="img-btn active" data-image-type="result">
+              Test result
+            </button>
+            {%- if image.expected %}
+            <button onclick="img_select(this);" class="img-btn" data-image-type="expected">
+              Expected
+            </button>
+            {%- endif %}
+            {%- if image.rmse %}
+            <button onclick="img_select(this);" class="img-btn" data-image-type="rmse">
+              RMSE
+            </button>
+            {%- endif %}
+          </div>
+
+          <div class="img-view active" data-image-type="result">
+            <img src="{{image.result}}"/>
+          </div>
           {%- if image.expected %}
-          <p>Image requise</p>
-          <img src="{{image.expected}}"/>
+          <div class="img-view" data-image-type="expected">
+            <img src="{{image.expected}}"/>
+          </div>
           {%- endif %}
+          {%- if image.rmse %}
+          <div class="img-view" data-image-type="rmse">
+            <img src="{{image.rmse}}"/>
+          </div>
+          {%- endif %}
+
         </div>
         {%- endfor %}
       </div>
