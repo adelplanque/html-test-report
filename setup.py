@@ -5,7 +5,7 @@ from setuptools import setup
 
 setup(
     name                 = 'html_test',
-    version              = '0.1',
+    version              = '1.0.0',
     description          = 'Python unittest runner with html report.',
     packages             = ('html_test', ),
     entry_points         = {
