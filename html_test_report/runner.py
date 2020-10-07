@@ -231,7 +231,7 @@ class MethodResult(object):
         context.update(Config().get_context())
         template = Template(
             pkg_resources.resource_string(
-                'html_test',
+                'html_test_report',
                 os.path.join('templates', 'test-case.html')).decode('utf-8')
         )
 
@@ -577,7 +577,7 @@ class Report(object):
         # Create index page
         template = Template(
             pkg_resources.resource_string(
-                'html_test',
+                'html_test_report',
                 os.path.join('templates', 'test-case.html')).decode('utf-8')
         )
         filename = os.path.join(Config().dest_path, 'index.html')

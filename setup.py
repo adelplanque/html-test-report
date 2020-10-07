@@ -3,21 +3,28 @@
 
 from setuptools import setup
 
+with open("README.md", "r") as f:
+    long_description = f.read()
+
+
 setup(
-    name                 = 'html_test',
+    name                 = 'html_test_report',
     version              = '1.0.0',
     description          = 'Python unittest runner with html report.',
-    packages             = ('html_test', ),
+    url                  = 'https://github.com/adelplanque/html-test-report',
+    packages             = ('html_test_report', ),
+    long_description     = long_description,
+    long_description_content_type = "text/markdown",
     entry_points         = {
         "console_scripts": [
-            "html-test = html_test.html_test:main",
+            "html-test = html_test_report.html_test:main",
         ],
         'nose.plugins.0.10': [
-            'html-test = html_test.nose_plugin:HtmlTestNosePlugin'
+            'html-test = html_test_report.nose_plugin:HtmlTestNosePlugin'
         ]
     },
     package_data         = {
-        'html_test': [
+        'html_test_report': [
             'templates/test-case.html',
         ]
     },
@@ -25,5 +32,13 @@ setup(
         "jinja2",
         "pygments",
         "six",
+    ],
+    classifiers=[
+        "Development Status :: 4 - Beta",
+        "Programming Language :: Python :: 2.7",
+        "Programming Language :: Python :: 3",
+        "License :: OSI Approved :: MIT License",
+        "Intended Audience :: Developers",
+        "Topic :: Software Development :: Testing",
     ]
 )
