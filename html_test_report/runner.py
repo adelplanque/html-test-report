@@ -341,7 +341,12 @@ class Traceback(object):
 
     def __init__(self, name, msg, tb):
         self.name = name
-        self.msg = msg
+        lines = msg.splitlines()
+        self.title = lines[0]
+        if len(lines) > 1:
+            self.description = u'\n'.join(lines[1:])
+        else:
+            self.description = None
         self.tb = tb
 
     def __iter__(self):

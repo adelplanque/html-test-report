@@ -194,6 +194,11 @@
          overflow-y: scroll;
      }
 
+     .exception-title {
+         white-space: pre-wrap;
+         word-break: break-all;
+     }
+
      .code-table {
          width: 100%;
          border-collapse: separate;
@@ -283,7 +288,7 @@
 	 border-radius: 4px;
      }
      .btn-group-img button.active {
-	background-color: #9a9a9b;
+	 background-color: #9a9a9b;
      }
      .btn-group-img button:hover {
          background-color: #3e8e41;
@@ -504,7 +509,11 @@
           {%- else %}
           <p><b>During handling of the above exception, another exception occurred:</b></p>
           {%- endif %}
-          <p><b>{{traceback.name}}:</b> {{traceback.msg}}</p>
+          <p><b>{{traceback.name}}:</b> {{traceback.title}}
+            {%- if traceback.description %}
+            <pre class="exception-title">{{traceback.description}}</pre>
+            {%- endif %}
+          </p>
           <ul class="tb-list">
             {% for item in traceback %}
             <li>File <span class="monospace">{{item.filename}}</span>,
