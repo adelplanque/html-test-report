@@ -366,15 +366,15 @@ class TracebackHandler(list):
         if six.PY2:
             try:
                 return six.binary_type(ev).decode('utf-8')
-            except UnicodeDecodeError:
+            except UnicodeEncodeError:
                 try:
                     return six.text_type(ev)
-                except:
+                except Exception:
                     return u"encoding error while retreiving message"
         else:
             try:
                 return six.text_type(ev)
-            except:
+            except Exception:
                 return u"encoding error while retreiving message"
 
     def __init__(self, exc_info):
