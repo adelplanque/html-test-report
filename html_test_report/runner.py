@@ -286,7 +286,7 @@ class TbFrame(object):
         if loader is not None and hasattr(loader, "get_source"):
             try:
                 source = loader.get_source(module_name)
-            except ImportError:
+            except Exception:
                 pass
         if source is None:
             try:
@@ -322,15 +322,9 @@ class TbFrame(object):
             try:
                 value = pprint.pformat(value, indent=4)
                 value = highlight(value, lexer, formatter)
-            except Exception:
-                try:
-                    value = six.u(repr(value))
-                except Exception as e:
-                    try:
-                        value = six.u(e)
-                    except Exception:
-                        value = ''
-                value = highlight(value, lexer_text, formatter)
+            except Exception as e:
+                value = highlight("%s: %s" % (e.__class__.__name__, str(e)),
+                                  lexer_text, formatter)
             yield self.VarLine(name, value)
 
 
@@ -342,7 +336,7 @@ class Traceback(object):
     def __init__(self, name, msg, tb):
         self.name = name
         lines = msg.splitlines()
-        self.title = lines[0]
+        self.title = lines[0] if lines else ''
         if len(lines) > 1:
             self.description = u'\n'.join(lines[1:])
         else:
