@@ -1,11 +1,14 @@
 # -*- coding: utf-8 -*-
-
 import os
+import six
+
+if six.PY2:
+    import pathlib2 as pathlib
+else:
+    import pathlib
 
 from nose.plugins import Plugin
 
-from .runner import Config
-from .runner import Report
 from .runner import ResultMixIn
 
 
@@ -31,10 +34,10 @@ class HtmlTestNosePlugin(ResultMixIn, Plugin):
         super(HtmlTestNosePlugin, self).configure(options, conf)
         if not self.enabled:
             return
-        Config().dest_path = options.html_test_path
+        self.setup(pathlib.Path(options.html_test_path))
 
     def finalize(self, result):
-        Report(self).make_report()
+        self.make_report()
 
     def addError(self, test, err):
         self.add_result_method('error', test, exc_info=err)

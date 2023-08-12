@@ -8,24 +8,25 @@ with open("README.md", "r") as f:
 
 
 setup(
-    name                 = 'html_test_report',
-    version              = '1.0.1',
-    description          = 'Python unittest runner with html report.',
-    url                  = 'https://github.com/adelplanque/html-test-report',
-    packages             = ('html_test_report', ),
-    long_description     = long_description,
-    long_description_content_type = "text/markdown",
-    entry_points         = {
+    name="html_test_report",
+    version="1.1.0",
+    description="Python unittest runner with html report.",
+    url="https://github.com/adelplanque/html-test-report",
+    packages=("html_test_report",),
+    long_description=long_description,
+    long_description_content_type="text/markdown",
+    entry_points={
         "console_scripts": [
             "html-test = html_test_report.html_test:main",
         ],
-        'nose.plugins.0.10': [
-            'html-test = html_test_report.nose_plugin:HtmlTestNosePlugin'
-        ]
+        "nose.plugins.0.10": [
+            "html-test = html_test_report.nose_plugin:HtmlTestNosePlugin"
+        ],
+        "pytest11": ["html_test = html_test_report.pytest_plugin"],
     },
-    package_data         = {
-        'html_test_report': [
-            'templates/test-case.html',
+    package_data={
+        "html_test_report": [
+            "templates/test-case.html",
         ]
     },
     install_requires=[
@@ -40,5 +41,5 @@ setup(
         "License :: OSI Approved :: MIT License",
         "Intended Audience :: Developers",
         "Topic :: Software Development :: Testing",
-    ]
+    ],
 )

@@ -1,5 +1,5 @@
-*~
+*.egg-info/
 *.pyc
+*~
 build/
 dist/
-html_test.egg-info/

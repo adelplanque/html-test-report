@@ -2,13 +2,18 @@
 """
 Django wrapper.
 """
-
 from __future__ import absolute_import
+import six
+
+if six.PY2:
+    import pathlib2 as pathlib
+else:
+    import pathlib
+
 from optparse import make_option
 from django.test.runner import DiscoverRunner
 
-from .html_test import HtmlTestRunner as BaseHtmlTestRunner
-from .runner import Config
+from .runner import HtmlTestRunner as BaseHtmlTestRunner
 
 __all__ = ['HtmlTestRunner']
 
@@ -23,8 +28,15 @@ def vararg_callback(option, opt_str, value, parser):
         setattr(parser.values, option.dest, value)
 
 
+def html_test_runner(html_path, links=None):
+    def wrapped(*args, **kwargs):
+        runner = BaseHtmlTestRunner(*args, html_path=html_path, links=links, **kwargs)
+        return runner
+
+    return wrapped
+
+
 class HtmlTestRunner(DiscoverRunner):
-    test_runner = BaseHtmlTestRunner
 
     if hasattr(DiscoverRunner, 'option_list'):
         # Maybe django < 1.8
@@ -50,6 +62,8 @@ class HtmlTestRunner(DiscoverRunner):
                 help="Add link")
 
     def __init__(self, **kwargs):
-        Config().dest_path = kwargs.pop('html_test_path')
-        Config().links = kwargs.pop('html_test_link')
+        self.test_runner = html_test_runner(
+            html_path=pathlib.Path(kwargs.pop("html_test_path")),
+            links=kwargs.pop("html_test_link"),
+        )
         super(HtmlTestRunner, self).__init__(**kwargs)
