@@ -106,22 +106,23 @@ class ImageResult(object):
         Compute RMSE difference between `img1` and `img2` and return filename
         for the diff image.
         """
-        filename = os.path.join('img', 'img-%s.png' % str(uuid.uuid4()))
+        filename = os.path.join("img", "img-%s.png" % str(uuid.uuid4()))
         dest_path = str(html_path)
-        cmd = ['compare', '-metric', 'rmse', img1, img2, filename]
+        cmd = ["compare", "-metric", "rmse", img1, img2, filename]
         try:
             subprocess.call(cmd, cwd=dest_path)
         except Exception as e:
-            stdout.write("Enable to run ImageMagic compare: %s: %s\n"
-                         % (e.__class__.__name__, e))
+            stdout.write(
+                "Enable to run ImageMagic compare: %s: %s\n" % (e.__class__.__name__, e)
+            )
         if os.path.exists(os.path.join(dest_path, filename)):
             return filename
 
     def to_dict(self):
         return {
-            'result': self.result,
-            'expected': self.expected,
-            'rmse': self.rmse,
+            "result": self.result,
+            "expected": self.expected,
+            "rmse": self.rmse,
         }
 
 
@@ -131,20 +132,20 @@ class FileResult(object):
     """
 
     def __init__(self, **kwargs):
-        path = os.path.join(str(kwargs.get("html_path")), 'data')
+        path = os.path.join(str(kwargs.get("html_path")), "data")
         if not os.path.exists(path):
             os.makedirs(path)
-        self.filename = 'file-%s' % str(uuid.uuid4())
+        self.filename = "file-%s" % str(uuid.uuid4())
         self.filepath = os.path.join(path, self.filename)
-        content = safe_text(kwargs.get('content', ""))
-        with open(self.filepath, 'w') as outfile:
-            outfile.write(content)
-        self.title = safe_text(kwargs.get('title', self.filename))
+        content = safe_text(kwargs.get("content", ""))
+        with open(self.filepath, "wb") as outfile:
+            outfile.write(content.encode("utf-8"))
+        self.title = safe_text(kwargs.get("title", self.filename))
 
     def to_dict(self):
         return {
-            'title': self.title,
-            'filename': os.path.join('data', self.filename),
+            "title": self.title,
+            "filename": os.path.join("data", self.filename),
         }
 
 
@@ -197,7 +198,7 @@ class TestCaseReport(object):
         filename = self.name + ".html"
         with open(str(html_path / filename), "wb") as outfile:
             report = template.render(self.context)
-            outfile.write(six.ensure_binary(report))
+            outfile.write(report.encode("utf-8"))
         return filename
 
 
