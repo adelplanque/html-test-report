@@ -143,22 +143,17 @@ class FileResult(object):
     File to be add to test report.
     """
 
-    def __init__(self, **kwargs):
-        path = os.path.join(str(kwargs.get("html_path")), "data")
-        if not os.path.exists(path):
-            os.makedirs(path)
-        self.filename = "file-%s" % str(uuid.uuid4())
-        self.filepath = os.path.join(path, self.filename)
-        content = safe_text(kwargs.get("content", ""))
-        with open(self.filepath, "wb") as outfile:
-            outfile.write(content.encode("utf-8"))
-        self.title = safe_text(kwargs.get("title", self.filename))
+    def __init__(self, html_path, content, title=None, content_type=None):
+        destdir = html_path / "data"
+        if not destdir.exists():
+            destdir.mkdir()
+        self.filename = pathlib.Path("data", "file-%s" % str(uuid.uuid4()))
+        with (html_path / self.filename).open("wb") as outfile:
+            outfile.write(safe_text(content).encode("utf-8"))
+        self.title = safe_text(title) or self.filename.name
 
     def to_dict(self):
-        return {
-            "title": self.title,
-            "filename": os.path.join("data", self.filename),
-        }
+        return {"title": self.title, "filename": self.filename}
 
 
 class TestCaseReport(object):

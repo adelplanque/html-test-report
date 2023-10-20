@@ -68,8 +68,15 @@ class ResultMixIn(object):
             except AttributeError:
                 pass
         files = []
-        for f in getattr(test, '_files', ()):
-            files.append(FileResult(html_path=self._html_path, **f).to_dict())
+        for f in getattr(test, "_files", ()):
+            files.append(
+                FileResult(
+                    html_path=self._html_path,
+                    title=f.get("title"),
+                    content=f.get("content"),
+                    content_type=f.get("content_type"),
+                ).to_dict()
+            )
 
         self._index.append(
             TestCaseReport(
