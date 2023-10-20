@@ -60,9 +60,9 @@ class ResultMixIn(object):
         for img in getattr(test, "_images", ()):
             try:
                 img = ImageResult(
+                    html_path=self._html_path,
                     result=img.get("result"),
                     expected=img.get("expected"),
-                    html_path=self._html_path,
                 )
                 images.append(img.to_dict())
             except AttributeError:

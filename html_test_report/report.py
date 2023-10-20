@@ -2,7 +2,6 @@
 import codecs
 import collections
 import datetime
-import imghdr
 import json
 import logging
 import os
@@ -14,6 +13,15 @@ import socket
 import subprocess
 import sys
 import uuid
+
+# FIXME Deprecated, be removed in 3.13
+# https://peps.python.org/pep-0594/#imghdr
+import imghdr
+
+if six.PY2:
+    import pathlib2 as pathlib
+else:
+    import pathlib
 
 from jinja2 import Template
 from pygments import highlight
@@ -69,15 +77,23 @@ class TestFormatter(logging.Formatter):
 
 class ImageResult(object):
 
-    def __init__(self, result, html_path, expected=None):
-        self.result = self.write_img(html_path, result)
-        self.expected = self.write_img(html_path, expected)
+    def __init__(self, html_path, result, expected=None):
+        self._html_path = html_path
+        imgdir = self._html_path / "img"
+        if not imgdir.exists():
+            imgdir.mkdir()
+        self.result = self.write_img(result)
         if expected:
-            self.rmse = self.compare_rmse(html_path, self.result, self.expected)
+            self.expected = self.write_img(expected)
+            self.rmse = self.compare_rmse(self.result, self.expected)
         else:
+            self.expected = None
             self.rmse = None
 
-    def write_img(self, html_path, data):
+    def get_random_filename(self, img_type):
+        return pathlib.Path("img", "img-%s.%s" % (str(uuid.uuid4()), img_type))
+
+    def write_img(self, data):
         """
         Save image and return filename.
         """
@@ -86,36 +102,32 @@ class ImageResult(object):
         img_type = imghdr.what(None, data)
         if not img_type:
             try:
-                with open(data, 'rb') as infile:
+                with open(data, "rb") as infile:
                     data = infile.read()
             except Exception:
                 return
             img_type = imghdr.what(None, data)
         if not img_type:
             return
-        filename = 'img-%s.%s' % (str(uuid.uuid4()), img_type)
-        destpath = os.path.join(str(html_path), 'img')
-        if not os.path.exists(destpath):
-            os.makedirs(destpath)
-        with open(os.path.join(destpath, filename), 'wb') as outfile:
+        filename = self.get_random_filename(img_type)
+        with (self._html_path / filename).open("wb") as outfile:
             outfile.write(data)
-        return os.path.join('img', filename)
+        return filename
 
-    def compare_rmse(self, html_path, img1, img2):
+    def compare_rmse(self, img1, img2):
         """
         Compute RMSE difference between `img1` and `img2` and return filename
         for the diff image.
         """
-        filename = os.path.join("img", "img-%s.png" % str(uuid.uuid4()))
-        dest_path = str(html_path)
-        cmd = ["compare", "-metric", "rmse", img1, img2, filename]
+        filename = self.get_random_filename("png")
+        cmd = ["compare", "-metric", "rmse", str(img1), str(img2), str(filename)]
         try:
-            subprocess.call(cmd, cwd=dest_path)
+            subprocess.call(cmd, cwd=str(self._html_path))
         except Exception as e:
             stdout.write(
                 "Enable to run ImageMagic compare: %s: %s\n" % (e.__class__.__name__, e)
             )
-        if os.path.exists(os.path.join(dest_path, filename)):
+        if (self._html_path / filename).exists():
             return filename
 
     def to_dict(self):
