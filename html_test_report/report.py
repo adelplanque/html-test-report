@@ -297,7 +297,7 @@ class Traceback(object):
     def __init__(self, name, msg, tb):
         self.name = name
         lines = msg.splitlines()
-        self.title = lines[0] if lines else ''
+        self.title = lines[0] if lines else "Unknow"
         if len(lines) > 1:
             self.description = u'\n'.join(lines[1:])
         else:
@@ -344,7 +344,6 @@ class TracebackHandler(list):
                                       evalue.__traceback__))
                 evalue = evalue.__context__
         self.reverse()
-
 
 
 class TestIndexNode(dict):
