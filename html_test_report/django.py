@@ -28,14 +28,6 @@ def vararg_callback(option, opt_str, value, parser):
         setattr(parser.values, option.dest, value)
 
 
-def html_test_runner(html_path, links=None):
-    def wrapped(*args, **kwargs):
-        runner = BaseHtmlTestRunner(*args, html_path=html_path, links=links, **kwargs)
-        return runner
-
-    return wrapped
-
-
 class HtmlTestRunner(DiscoverRunner):
 
     if hasattr(DiscoverRunner, 'option_list'):
@@ -61,9 +53,14 @@ class HtmlTestRunner(DiscoverRunner):
                 '--html-test-link', nargs='*',
                 help="Add link")
 
-    def __init__(self, **kwargs):
-        self.test_runner = html_test_runner(
-            html_path=pathlib.Path(kwargs.pop("html_test_path")),
-            links=kwargs.pop("html_test_link"),
-        )
-        super(HtmlTestRunner, self).__init__(**kwargs)
+    def __init__(self, **options):
+        def test_runner(*args, **kwargs):
+            return BaseHtmlTestRunner(
+                *args,
+                html_path=pathlib.Path(options.pop("html_test_path")),
+                links=options.pop("html_test_link"),
+                **kwargs
+            )
+
+        self.test_runner = test_runner
+        super(HtmlTestRunner, self).__init__(**options)
