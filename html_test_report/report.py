@@ -187,7 +187,9 @@ class TestCaseReport(object):
             "doc_class": safe_text(doc_class),
             "doc_test": safe_text(doc_test),
             "console": safe_text(console),
-            "logs": [(name, level, safe_text(msg)) for name, level, msg in logs],
+            "logs": [
+                (name, level, safe_text(msg)) for name, level, msg in (logs or ())
+            ],
             "tracebacks": tracebacks,
             "reason": safe_text(reason),
             "images": images,
