@@ -26,6 +26,8 @@ class ResultMixIn(object):
 
     def __init__(self, *args, **kwargs):
         super(ResultMixIn, self).__init__(*args, **kwargs)
+        self._buffer_console = None
+        self._buffer_log = None
         self._options = {}
 
     def setup(self, html_path, links=None):
@@ -125,15 +127,17 @@ class ResultMixIn(object):
         # Restore stdout and stderr.
         sys.stdout = self._old_stdout
         sys.stderr = self._old_stderr
-        self._buffer_console.close()
-        self._buffer_console = None
+        if self._buffer_console is not None:
+            self._buffer_console.close()
+            self._buffer_console = None
         # Restore logs
         for handler in logging.root.handlers[:]:
             logging.root.removeHandler(handler)
         for handler in self._old_handlers:
             logging.root.addHandler(handler)
-        self._buffer_log.close()
-        self._buffer_log = None
+        if self._buffer_log is not None:
+            self._buffer_log.close()
+            self._buffer_log = None
 
     def make_report(self):
         self._index.make_report()
