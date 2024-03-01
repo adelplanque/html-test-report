@@ -84,6 +84,8 @@ class HtmlTestPlugin(object):
             name = item.function.__module__ + "." + name
         if call.excinfo is None:
             status = "success"
+        elif isinstance(call.excinfo, pytest.skip.Exception):
+            status = "skip"
         elif isinstance(call.excinfo, AssertionError):
             status = "fail"
         else:
