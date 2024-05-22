@@ -55,7 +55,13 @@ def safe_text(s):
                 return s
             if isinstance(s, str):
                 return unicode(s, "utf-8", errors="replace")
-            return s
+            try:
+                return six.ensure_text(str(s), encoding="utf-8", errors="replace")
+            except Exception:
+                try:
+                    return six.ensure_text(repr(s), encoding="utf-8", errors="replace")
+                except Exception:
+                    return "Unable to get any valid unicode representation"
         else:
             return str(s)
     except Exception as e:
@@ -68,10 +74,14 @@ class TestFormatter(logging.Formatter):
     """
 
     def format(self, record):
-        if record.args:
-            msg = record.msg % record.args
-        else:
-            msg = record.msg
+        try:
+            if record.args:
+                msg = record.msg % record.args
+            else:
+                msg = record.msg
+        except Exception as e:
+            msg = "Invalid log record: %s" % e
+        msg = safe_text(msg)
         return json.dumps((record.name, record.levelname, msg))
 
 
