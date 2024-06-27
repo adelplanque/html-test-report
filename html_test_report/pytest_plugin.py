@@ -9,6 +9,8 @@ if six.PY2:
 else:
     import pathlib
 
+from _pytest.outcomes import Skipped
+
 from .runner import TestCaseReport
 from .runner import TestIndexRoot
 from .runner import TracebackHandler
@@ -84,9 +86,9 @@ class HtmlTestPlugin(object):
             name = item.function.__module__ + "." + name
         if call.excinfo is None:
             status = "success"
-        elif isinstance(call.excinfo, pytest.skip.Exception):
+        elif call.excinfo.errisinstance(Skipped):
             status = "skip"
-        elif isinstance(call.excinfo, AssertionError):
+        elif call.excinfo.errisinstance(AssertionError):
             status = "fail"
         else:
             status = "error"
