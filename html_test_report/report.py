@@ -4,6 +4,7 @@ import collections
 import datetime
 import json
 import logging
+import magic
 import os
 import pkg_resources
 import pprint
@@ -13,10 +14,6 @@ import socket
 import subprocess
 import sys
 import uuid
-
-# FIXME Deprecated, be removed in 3.13
-# https://peps.python.org/pep-0594/#imghdr
-import imghdr
 
 if six.PY2:
     import pathlib2 as pathlib
@@ -68,6 +65,21 @@ def safe_text(s):
         return six.u(e)
 
 
+def get_img_ext(data):
+    """
+    Return extension of an image.
+    """
+    try:
+        mg = magic.Magic(mime=True)
+        mime = mg.from_buffer(data)
+        typ, ext = mime.split("/")
+    except Exception as e:
+        print("Fail to get image type: %s" % e)
+        return
+    if typ == "image":
+        return ext
+
+
 class TestFormatter(logging.Formatter):
     """
     Format log entry as json (logger, level, message)
@@ -107,19 +119,20 @@ class ImageResult(object):
         """
         Save image and return filename.
         """
-        if data is None:
+        if not data:
             return
-        img_type = imghdr.what(None, data)
-        if not img_type:
-            try:
-                with open(data, "rb") as infile:
-                    data = infile.read()
-            except Exception:
-                return
-            img_type = imghdr.what(None, data)
-        if not img_type:
+        try:
+            if isinstance(data, six.string_types):
+                p = pathlib.Path(data)
+                if p.exists():
+                    with p.open("rb") as infile:
+                        data = infile.read()
+        except Exception:
+            pass
+        img_ext = get_img_ext(data)
+        if not img_ext:
             return
-        filename = self.get_random_filename(img_type)
+        filename = self.get_random_filename(img_ext)
         with (self._html_path / filename).open("wb") as outfile:
             outfile.write(data)
         return filename

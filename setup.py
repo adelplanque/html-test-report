@@ -32,6 +32,7 @@ setup(
     install_requires=[
         "jinja2",
         "pygments",
+        "python-magic",
         "six",
     ],
     classifiers=[
