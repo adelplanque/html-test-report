@@ -9,7 +9,7 @@ with open("README.md", "r") as f:
 
 setup(
     name="html_test_report",
-    version="1.1.2",
+    version="1.1.3",
     description="Python unittest runner with html report.",
     url="https://github.com/adelplanque/html-test-report",
     packages=("html_test_report",),
