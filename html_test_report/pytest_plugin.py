@@ -11,9 +11,10 @@ else:
 
 from _pytest.outcomes import Skipped
 
-from .runner import TestCaseReport
-from .runner import TestIndexRoot
-from .runner import TracebackHandler
+from .report import ImageResult
+from .report import TestCaseReport
+from .report import TestIndexRoot
+from .report import TracebackHandler
 
 
 def pytest_addoption(parser):
@@ -41,11 +42,30 @@ def pytest_configure(config):
 
 class TestLogHandler(logging.Handler):
 
-    def __init__(self):
+    def __init__(self, html_path):
+        """
+        Init TestLogHandler
+
+        Args:
+            html_path: Location to save the test report
+        """
         super(TestLogHandler, self).__init__(level=logging.DEBUG)
+        self.html_path = html_path
         self.records = []
+        self.images = []
 
     def emit(self, record):
+        image_data = getattr(record, "image", None)
+        if image_data:
+            try:
+                result = image_data.get("result")
+                expected = image_data.get("expected")
+            except Exception as e:
+                try:
+                    logging.getLogger("html-test").error("Fail to add image: %s", e)
+                except Exception:
+                    pass
+            self.images.append(ImageResult(self.html_path, result, expected))
         self.records.append((record.name, record.levelname, self.format(record)))
 
 
@@ -63,7 +83,7 @@ class HtmlTestPlugin(object):
     @pytest.hookimpl(hookwrapper=True)
     def pytest_runtest_call(self, item):
         root = logging.getLogger()
-        handler = TestLogHandler()
+        handler = TestLogHandler(self.html_path)
         old_handlers = root.handlers
         old_level = root.level
         try:
@@ -119,6 +139,7 @@ class HtmlTestPlugin(object):
                 console="stdout:\n%s\nstderr:\n%s"
                 % (sections.get("stdout", ""), sections.get("stderr", "")),
                 logs=item._log_handler.records,
+                images=item._log_handler.images,
                 tracebacks=tracebacks,
             )
         )
