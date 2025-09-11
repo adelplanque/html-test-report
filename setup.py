@@ -23,7 +23,7 @@ if sys.version_info < (3, 9):
 
 setup(
     name="html_test_report",
-    version="1.1.3",
+    version="1.1.4",
     description="Python unittest runner with html report.",
     url="https://github.com/adelplanque/html-test-report",
     packages=("html_test_report",),
