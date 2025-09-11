@@ -4,21 +4,25 @@ import collections
 import datetime
 import json
 import logging
-import magic
-import os
-import pkg_resources
 import pprint
 import re
-import six
 import socket
 import subprocess
 import sys
 import uuid
 
+import magic
+import six
+
 if six.PY2:
     import pathlib2 as pathlib
 else:
     import pathlib
+
+if sys.version_info < (3, 9):
+    import importlib_resources as resources
+else:
+    import importlib.resources as resources
 
 from jinja2 import Template
 from pygments import highlight
@@ -223,9 +227,10 @@ class TestCaseReport(object):
     def render(self, html_path, global_context):
         self.context.update(global_context)
         template = Template(
-            pkg_resources.resource_string(
-                "html_test_report", os.path.join("templates", "test-case.html")
-            ).decode("utf-8")
+            resources.files("html_test_report")
+            .joinpath("templates")
+            .joinpath("test-case.html")
+            .read_text()
         )
         filename = self.name + ".html"
         with open(str(html_path / filename), "wb") as outfile:
@@ -448,9 +453,10 @@ class TestIndexRoot(TestIndexNode):
             )
         # Create index page
         template = Template(
-            pkg_resources.resource_string(
-                "html_test_report", os.path.join("templates", "test-case.html")
-            ).decode("utf-8")
+            resources.files("html_test_report")
+            .joinpath("templates")
+            .joinpath("test-case.html")
+            .read_text()
         )
         index_html = self._html_path / "index.html"
         with codecs.open(str(index_html), "w", encoding="utf-8") as outfile:

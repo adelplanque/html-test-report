@@ -1,10 +1,24 @@
 #!/usr/bin/env python
 # -*- encoding: utf-8 -*-
+import sys
 
 from setuptools import setup
 
+
 with open("README.md", "r") as f:
     long_description = f.read()
+
+
+requires = [
+    "jinja2",
+    "pygments",
+    "python-magic",
+    "six",
+]
+
+
+if sys.version_info < (3, 9):
+    requires.append("importlib-resources")
 
 
 setup(
@@ -29,12 +43,8 @@ setup(
             "templates/test-case.html",
         ]
     },
-    install_requires=[
-        "jinja2",
-        "pygments",
-        "python-magic",
-        "six",
-    ],
+    install_requires=requires,
+    python_requires=">=2.7",
     classifiers=[
         "Development Status :: 4 - Beta",
         "Programming Language :: Python :: 2.7",
