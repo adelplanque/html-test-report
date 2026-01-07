@@ -38,7 +38,7 @@ class ResultMixIn(object):
         """
         Add test result.
         """
-        if hasattr(test, 'test'):
+        if hasattr(test, 'test') and test.test:
             # We are using nosetest. `test` is a nose wrapper.
             test = test.test
 
